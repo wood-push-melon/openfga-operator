@@ -27,6 +27,7 @@ jobs:
           python -m pip install tox
           sudo snap install jhack
           sudo snap install rockcraft --classic
+          sudo snap connect jhack:dot-local-share-juju snapd
 
       - name: Setup operator environment
         uses: charmed-kubernetes/actions-operator@main
@@ -34,11 +35,16 @@ jobs:
           provider: microk8s
           channel: 1.32-strict/stable
           juju-channel: 3.6/stable
-          microk8s-addons: "dns hostpath-storage metallb:10.64.140.43-10.64.140.49"
+          microk8s-addons: "dns registry hostpath-storage metallb:10.64.140.43-10.64.140.49"
 
       - name: Setup juju model config
         run:
           juju model-config logging-config="<root>=INFO"
+
+      - name: Remove packages
+        run: |
+          sudo apt-get clean
+          sudo rm -rf /usr/local/lib/android /usr/local/lib/node_modules /usr/share/dotnet
 
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
